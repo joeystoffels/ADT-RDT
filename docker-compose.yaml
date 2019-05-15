@@ -1,0 +1,71 @@
+version: '3'
+services:
+  # Relational DBMS
+  mssql-server:
+    image: microsoft/mssql-server-linux:latest
+    container_name: "mssql"
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: realGeheim!
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+
+  # Documents store DB
+  mongo:
+    image: mongo:4.1.11-bionic
+    container_name: "mongo"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+  mongo-express:
+    image: mongo-express:0.49
+    container_name: "mongo-express"
+    ports:
+      - "8081:8081"
+
+
+  # Time series DB
+  telegraf:
+    image: telegraf:1.10.3
+    container_name: "influx-telegraf"
+    links:
+      - influxdb
+    ports:
+      - "8092:8092/udp"
+      - "8094:8094"
+      - "8125:8125/udp"
+  influxdb:
+    image: influxdb:1.7
+    container_name: "influx-influxdb"
+    environment:
+      INFLUXDB_USER: admin
+      INFLUXDB_USER_PASSWORD: password
+    ports:
+      - "8086:8086"
+
+  # Define a Chronograf service
+  chronograf:
+    image: chronograf:1.5.0
+    container_name: "influx-chronograf"
+    environment:
+      INFLUXDB_URL: http://influxdb:8086
+      KAPACITOR_URL: http://kapacitor:9092
+    ports:
+      - "8888:8888"
+    links:
+      - influxdb
+      - kapacitor
+  # Define a Kapacitor service
+  kapacitor:
+    image: kapacitor:1.4.1
+    container_name: "influx-kapacitor"
+    environment:
+      KAPACITOR_HOSTNAME: kapacitor
+      KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086
+    links:
+      - influxdb
+    ports:
+      - "9092:9092"
