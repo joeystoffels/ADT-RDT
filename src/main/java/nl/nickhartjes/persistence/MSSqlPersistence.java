@@ -1,20 +1,20 @@
-package nl.nickhartjes.Persistance;
+package nl.nickhartjes.persistence;
 
-import nl.nickhartjes.Models.Measurement;
+import nl.nickhartjes.models.Measurement;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class MSSqlPersistance extends PersistanceAdapter {
+public class MSSqlPersistence extends PersistenceAdapter {
 
   private Connection connection;
 
-  public MSSqlPersistance() {
-    super();
-  }
+  private List<Long> writeTimes = new ArrayList<>();
 
   @Override
   public void save(List<Measurement> measurements) {
@@ -39,8 +39,14 @@ public class MSSqlPersistance extends PersistanceAdapter {
           stmt.addBatch();
         }
         // execute batch
+        Date startDate = new Date();
+
         stmt.executeBatch();
         conn.commit();
+
+        Date endDate = new Date();
+        writeTimes.add(endDate.getTime() - startDate.getTime());
+
         System.out.println("Transaction is commited successfully.");
       } catch (SQLException e) {
         e.printStackTrace();
@@ -75,5 +81,10 @@ public class MSSqlPersistance extends PersistanceAdapter {
       e.printStackTrace();
     }
     return null;
+  }
+
+  @Override
+  public List<Long> getWriteTimes() {
+    return writeTimes;
   }
 }

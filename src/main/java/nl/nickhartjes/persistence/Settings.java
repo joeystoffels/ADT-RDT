@@ -1,4 +1,4 @@
-package nl.nickhartjes.Persistance;
+package nl.nickhartjes.persistence;
 
 import java.io.IOException;
 import java.io.InputStream;

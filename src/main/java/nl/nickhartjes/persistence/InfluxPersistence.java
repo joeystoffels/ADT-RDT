@@ -1,24 +1,26 @@
-package nl.nickhartjes.Persistance;
+package nl.nickhartjes.persistence;
 
 import com.mongodb.client.MongoCollection;
-import nl.nickhartjes.Models.Measurement;
+import nl.nickhartjes.models.Measurement;
 import org.bson.Document;
 import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class InfluxPersistance extends PersistanceAdapter {
+public class InfluxPersistence extends PersistenceAdapter {
 
   private InfluxDB influxDB;
   private MongoCollection<Document> collection;
 
-  public InfluxPersistance() {
-    super();
+  private List<Long> writeTimes = new ArrayList<>();
 
+  public InfluxPersistence() {
     String influxUri = this.properties.getProperty("influxdb.URI");
     String databaseUser = this.properties.getProperty("influxdb.username");
     String databasePassword = this.properties.getProperty("influxdb.password");
@@ -37,12 +39,23 @@ public class InfluxPersistance extends PersistanceAdapter {
               .time(measurement.getTimestamp().getTimeInMillis(), TimeUnit.MILLISECONDS)
               .addField("value", measurement.getValue())
               .build();
+
+      Date startDate = new Date();
+
       this.influxDB.write("han", "autogen", point);
+
+      Date endDate = new Date();
+      writeTimes.add(endDate.getTime() - startDate.getTime());
     }
   }
 
   @Override
   public void close() {
     this.influxDB.close();
+  }
+
+  @Override
+  public List<Long> getWriteTimes() {
+    return writeTimes;
   }
 }
