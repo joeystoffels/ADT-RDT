@@ -1,7 +1,8 @@
-package nl.nickhartjes.persistence;
+package nl.nickhartjes.component;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.Measurement;
+import nl.nickhartjes.persistence.Persistence;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,14 +26,13 @@ public class DataCreator {
     public void execute() {
 
         double randomNum;
-        double min = config.getStartValue();
-        double max = config.getUpperBoundValue();
+        double startValue = config.getStartValue();
+        double upperBoundValue = config.getUpperBoundValue();
         List<Measurement> measurements = new ArrayList<>();
         Date startDate = new Date();
 
         for (int count = 0; count < config.getNrDataPoints(); count++) {
-            randomNum = ThreadLocalRandom.current().nextDouble(min, max + 1);
-
+            randomNum = getRandomNum(startValue, upperBoundValue);
             measurements.add(new Measurement(calendar, randomNum));
 
             if ((count % config.getBatchSize()) == 0) {
@@ -42,8 +42,8 @@ public class DataCreator {
             }
 
             calendar.add(Calendar.SECOND, 1);
-            min = getMin(randomNum);
-            max = getMax(randomNum);
+            startValue = getMin(randomNum);
+            upperBoundValue = getMax(randomNum);
         }
 
         Date endDate = new Date();
@@ -58,5 +58,9 @@ public class DataCreator {
 
     private double getMax(double nr) {
         return nr / 100 * 102;
+    }
+
+    private double getRandomNum(double startValue, double upperBoundValue) {
+        return ThreadLocalRandom.current().nextDouble(startValue, upperBoundValue + 1);
     }
 }

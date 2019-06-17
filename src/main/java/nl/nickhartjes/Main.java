@@ -1,9 +1,8 @@
 package nl.nickhartjes;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.nickhartjes.persistence.DataCreator;
-import nl.nickhartjes.persistence.DataCreatorConfig;
-import nl.nickhartjes.persistence.InfluxPersistence;
+import nl.nickhartjes.component.DataCreator;
+import nl.nickhartjes.component.DataCreatorConfig;
 import nl.nickhartjes.persistence.MSSqlPersistence;
 import nl.nickhartjes.persistence.Persistence;
 

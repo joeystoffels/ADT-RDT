@@ -1,4 +1,4 @@
-package nl.nickhartjes.persistence;
+package nl.nickhartjes.component;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
