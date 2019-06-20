@@ -36,7 +36,7 @@ public class DataCreator {
             measurements.add(new Measurement(calendar, randomNum));
 
             if ((count % config.getBatchSize()) == 0) {
-                //log.info("Count: " + count);
+                log.info(persistence.getClass() + " Count: " + count);
                 persistence.save(measurements);
                 measurements.clear();
             }

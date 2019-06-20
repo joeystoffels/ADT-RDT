@@ -20,14 +20,14 @@ public class Persistence {
   }
 
   public void save(List<Measurement> measurementList) {
-    for (PersistenceAdapter persistanceAdepter : persistenceAdapters) {
-        persistanceAdepter.save(measurementList);
+    for (PersistenceAdapter persistenceAdepter : persistenceAdapters) {
+        persistenceAdepter.save(measurementList);
     }
   }
 
   public void close() {
     for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
-      //persistanceAdapter.close();
+      persistenceAdapter.close();
     }
   }
 
