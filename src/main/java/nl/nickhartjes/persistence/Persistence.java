@@ -35,6 +35,12 @@ public class Persistence {
         }
     }
 
+    public void readAll() {
+        for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
+            persistenceAdapter.readAll();
+        }
+    }
+
     public List<PersistenceAdapter> getPersistenceAdapters() {
         return persistenceAdapters;
     }

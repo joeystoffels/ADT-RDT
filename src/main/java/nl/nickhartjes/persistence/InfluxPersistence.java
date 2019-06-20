@@ -15,23 +15,23 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Getter
-public class InfluxPersistence extends PersistenceAdapter {
+public class InfluxPersistence implements PersistenceAdapter {
 
-    private InfluxDB influxDB;
-//    private MongoCollection<Document> collection;
+    private final InfluxDB influxDB;
+    private final String collection;
 
     private List<Long> writeTimes = new ArrayList<>();
     private List<Long> readTimes = new ArrayList<>();
 
-    public InfluxPersistence() {
-        String influxUri = this.getProperties().getProperty("influxdb.URI");
-        String databaseUser = this.getProperties().getProperty("influxdb.username");
-        String databasePassword = this.getProperties().getProperty("influxdb.password");
-//    int batchSize = Integer.parseInt(this.properties.getProperty("batchSize"));
+    public InfluxPersistence(String influxUri, String databaseUser, String databasePassword, String collection) {
+        this.collection = collection;
 
         influxDB = InfluxDBFactory.connect(influxUri, databaseUser, databasePassword);
         influxDB.enableBatch(BatchOptions.DEFAULTS.actions(1000).flushDuration(100));
-//    influxDB.enableBatch(batchSize, 100, TimeUnit.MILLISECONDS);
+
+        // TODO?
+        //    int batchSize = Integer.parseInt(this.properties.getProperty("batchSize"));
+        //    influxDB.enableBatch(batchSize, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class InfluxPersistence extends PersistenceAdapter {
 
         for (Measurement measurement : measurements) {
             Point point =
-                    Point.measurement("crypto")
+                    Point.measurement(collection)
                             .time(measurement.getTimestamp().getTimeInMillis(), TimeUnit.MILLISECONDS)
                             .addField("value", measurement.getValue())
                             .build();
@@ -51,22 +51,20 @@ public class InfluxPersistence extends PersistenceAdapter {
         }
 
         long writeDuration = System.nanoTime() - startTime;
-        logWriteDuration("Influx", writeDuration);
+        log.info("Influx batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
         writeTimes.add(writeDuration);
-
-        long readStartTime = System.nanoTime();
-
-        readAll();
-
-        long readDuration = System.nanoTime() - readStartTime;
-        logReadDuration("Influx", readDuration);
-        readTimes.add(readDuration);
     }
 
     @Override
     public void readAll() {
-        Query query = new Query("SELECT * FROM Crypto", "crypto");
+        long readStartTime = System.nanoTime();
+
+        Query query = new Query("SELECT * FROM Crypto", collection);
         influxDB.query(query);
+
+        long readDuration = System.nanoTime() - readStartTime;
+        log.info("Influx read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
+        readTimes.add(readDuration);
     }
 
     @Override
@@ -77,7 +75,7 @@ public class InfluxPersistence extends PersistenceAdapter {
     @Override
     public void drop() {
         log.info("Influx deleting entries...");
-        Query query = new Query("DELETE FROM Crypto", "crypto");
+        Query query = new Query("DELETE FROM Crypto", collection);
         influxDB.query(query);
     }
 

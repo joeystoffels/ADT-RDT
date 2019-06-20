@@ -10,20 +10,20 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
-public class DataCreator {
+class DatabaseTest {
 
     private final Persistence persistence;
-    private final DataCreatorConfig config;
+    private final DatabaseTestConfig config;
 
     private Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
 
-    public DataCreator(DataCreatorConfig config, Persistence persistence) {
+    DatabaseTest(DatabaseTestConfig config, Persistence persistence) {
         this.config = config;
         this.persistence = persistence;
     }
 
-    public void execute() {
-
+    void writeAndReadData() {
+        // Setup
         double randomNum;
         double startValue = config.getStartValue();
         double upperBoundValue = config.getUpperBoundValue();
@@ -31,6 +31,7 @@ public class DataCreator {
         long startTime = System.nanoTime();
         int batchCounter = 0;
 
+        // Execute
         for (int count = 0; count < config.getNrDataPoints(); count++) {
             randomNum = getRandomNum(startValue, upperBoundValue);
             measurements.add(new Measurement(calendar, randomNum));
@@ -43,6 +44,8 @@ public class DataCreator {
                 log.info("------------------------------------------------------------");
 
                 persistence.save(measurements);
+                persistence.readAll();
+
                 measurements.clear();
 
                 log.info("End of batch nr "+ batchCounter + ", " + config.getBatchSize() + " entries added to databases! \n");

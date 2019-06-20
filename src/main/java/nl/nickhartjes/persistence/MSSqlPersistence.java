@@ -14,28 +14,29 @@ import java.util.List;
 
 @Slf4j
 @Getter
-public class MSSqlPersistence extends PersistenceAdapter {
+public class MSSqlPersistence implements PersistenceAdapter {
+
+    private final String collection;
+    private final Connection connection;
 
     private List<Long> writeTimes = new ArrayList<>();
     private List<Long> readTimes = new ArrayList<>();
 
-    private final String collectionName = this.getProperties().getProperty("collection");
+    public MSSqlPersistence(String uri, String collection) {
+        this.collection = collection;
 
-    private Connection connection;
-
-    public MSSqlPersistence() {
         try {
-            String connectionUrl = getProperties().getProperty("mssql.URI");
-            connection = DriverManager.getConnection(connectionUrl);
+            connection = DriverManager.getConnection(uri);
         } catch (SQLException e) {
             log.error(e.getMessage());
+            throw new AssertionError("No MSSQL connection available!");
         }
     }
 
     @Override
     public void save(List<Measurement> measurements) {
 
-        String insertStatement = "INSERT INTO dbo." + collectionName + " (timestamp, value) VALUES (?,?)";
+        String insertStatement = "INSERT INTO dbo." + collection + " (timestamp, value) VALUES (?,?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(insertStatement)) {
             log.info("********** MSSQL actions **********");
@@ -51,23 +52,15 @@ public class MSSqlPersistence extends PersistenceAdapter {
                 // Add statement to batch
                 stmt.addBatch();
             }
-            // execute batch
+            // writeAndReadData batch
             long startTime = System.nanoTime();
 
             stmt.executeBatch();
             connection.commit();
 
             long writeDuration = System.nanoTime() - startTime;
-            logWriteDuration("MSSQL", writeDuration);
+            log.info("MSSQL batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
             writeTimes.add(writeDuration);
-
-            long readStartTime = System.nanoTime();
-
-            readAll();
-
-            long readDuration = System.nanoTime() - readStartTime;
-            logReadDuration("MSSQL", readDuration);
-            readTimes.add(readDuration);
 
         } catch (SQLException e) {
             log.error(e.getMessage());
@@ -77,7 +70,14 @@ public class MSSqlPersistence extends PersistenceAdapter {
     @Override
     public void readAll() {
         try (Statement stmt = connection.createStatement()) {
+            long readStartTime = System.nanoTime();
+
             stmt.executeQuery("SELECT * FROM Crypto");
+
+            long readDuration = System.nanoTime() - readStartTime;
+            log.info("MSSQL read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
+
+            readTimes.add(readDuration);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

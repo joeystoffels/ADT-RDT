@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DataCreatorConfig {
+class DatabaseTestConfig {
 
     private final long nrDataPoints;
     private final int batchSize;
