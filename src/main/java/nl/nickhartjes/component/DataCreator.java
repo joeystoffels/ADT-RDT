@@ -6,7 +6,6 @@ import nl.nickhartjes.persistence.Persistence;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -29,16 +28,24 @@ public class DataCreator {
         double startValue = config.getStartValue();
         double upperBoundValue = config.getUpperBoundValue();
         List<Measurement> measurements = new ArrayList<>();
-        Date startDate = new Date();
+        long startTime = System.nanoTime();
+        int batchCounter = 0;
 
         for (int count = 0; count < config.getNrDataPoints(); count++) {
             randomNum = getRandomNum(startValue, upperBoundValue);
             measurements.add(new Measurement(calendar, randomNum));
 
             if ((count % config.getBatchSize()) == 0) {
-                log.info(persistence.getClass() + " Count: " + count);
+                batchCounter++;
+
+                log.info("------------------------------------------------------------");
+                log.info("------- Batch nr " + batchCounter + ", Total data entries: " + count);
+                log.info("------------------------------------------------------------");
+
                 persistence.save(measurements);
                 measurements.clear();
+
+                log.info("End of batch nr "+ batchCounter + ", " + config.getBatchSize() + " entries added to databases! \n");
             }
 
             calendar.add(Calendar.SECOND, 1);
@@ -46,10 +53,7 @@ public class DataCreator {
             upperBoundValue = getMax(randomNum);
         }
 
-        Date endDate = new Date();
-        long duration = endDate.getTime() - startDate.getTime();
-
-        log.info("duration: " + duration + "ms");
+        log.info("Total duration: " + (System.nanoTime() - startTime) / 1000000 + "ms \n" );
     }
 
     private double getMin(double nr) {
