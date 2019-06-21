@@ -2,6 +2,9 @@ package nl.nickhartjes.component;
 
 public class Converter {
 
+    private Converter() {
+    }
+
     public static long nanosecondsToSeconds(long nanoseconds) {
         return nanoseconds / 1000000000;
     }

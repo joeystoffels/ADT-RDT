@@ -3,6 +3,7 @@ package nl.nickhartjes.component;
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.Measurement;
 import nl.nickhartjes.persistence.Persistence;
+import nl.nickhartjes.statistics.ExportAdapter;
 import nl.nickhartjes.statistics.Exporter;
 
 import java.util.ArrayList;
@@ -45,13 +46,15 @@ class DatabaseTest {
                 persistence.save(measurements, batchCounter, config.getBatchSize(), exporter);
                 persistence.readAll(batchCounter, config.getBatchSize(), exporter);
                 measurements.clear();
-
-//                log.info("End of batch nr "+ batchCounter + ", " + config.getBatchSize() + " entries added to databases! \n");
             }
 
             calendar.add(Calendar.SECOND, 1);
             startValue = getMin(randomNum);
             upperBoundValue = getMax(randomNum);
+        }
+
+        for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
+            exportAdapter.finish();
         }
 
         log.info("Total duration: " + (System.nanoTime() - startTime) / 1000000 + "ms \n");

@@ -16,8 +16,9 @@ public class LogExporter implements ExportAdapter {
 
         if (batchCounter != statisticEntry.getBatch()) {
             this.batchCounter = statisticEntry.getBatch();
+            String total = NumberFormat.getNumberInstance(Locale.US).format(batchCounter * statisticEntry.getBatchSize());
             log.info("------------------------------------------------------------");
-            log.info("------- Batch nr " + batchCounter + "   Total: " + NumberFormat.getNumberInstance(Locale.US).format(batchCounter * statisticEntry.getBatchSize()));
+            log.info("------- Batch nr " + batchCounter + "   Total: " + total);
             log.info("------------------------------------------------------------");
         }
 
@@ -31,6 +32,6 @@ public class LogExporter implements ExportAdapter {
 
     @Override
     public void finish() {
-
+        // Need implemtation
     }
 }

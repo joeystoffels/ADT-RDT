@@ -3,6 +3,7 @@ package nl.nickhartjes.component;
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.Statistics;
 import nl.nickhartjes.persistence.*;
+import nl.nickhartjes.statistics.ExcelExporter;
 import nl.nickhartjes.statistics.Exporter;
 import nl.nickhartjes.statistics.LogExporter;
 
@@ -44,6 +45,7 @@ public class Orchestrator {
 
         exporter = new Exporter();
         exporter.add(new LogExporter());
+        exporter.add(new ExcelExporter());
 
         DatabaseTestConfig dataCreatorConfig = new DatabaseTestConfig(nrDataEntries, batchSize, 10, 11);
         databaseTest = new DatabaseTest(dataCreatorConfig, persistence, exporter);

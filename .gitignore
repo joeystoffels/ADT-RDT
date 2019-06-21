@@ -31,3 +31,7 @@ build\
 .idea/
 build/
 out/
+
+
+files/*.xlsx
+!files/template.xlsx

@@ -36,7 +36,6 @@ public class MSSqlPersistence implements PersistenceAdapter {
         long writeDuration = 0;
 
         try (PreparedStatement stmt = connection.prepareStatement(insertStatement)) {
-//            log.info("********** MSSQL actions **********");
             connection.setAutoCommit(false);
 
             // Insert sample records
@@ -56,7 +55,6 @@ public class MSSqlPersistence implements PersistenceAdapter {
             connection.commit();
 
             writeDuration = System.nanoTime() - startTime;
-//            log.info("MSSQL batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
             writeTimes.add(writeDuration);
 
         } catch (SQLException e) {
@@ -74,7 +72,6 @@ public class MSSqlPersistence implements PersistenceAdapter {
             stmt.executeQuery("SELECT * FROM Crypto");
 
             readDuration = System.nanoTime() - readStartTime;
-//            log.info("MSSQL read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
 
             readTimes.add(readDuration);
         } catch (SQLException e) {

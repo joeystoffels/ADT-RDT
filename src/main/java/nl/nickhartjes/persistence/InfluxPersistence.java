@@ -28,15 +28,10 @@ public class InfluxPersistence implements PersistenceAdapter {
 
         influxDB = InfluxDBFactory.connect(influxUri, databaseUser, databasePassword);
         influxDB.enableBatch(BatchOptions.DEFAULTS.actions(1000).flushDuration(100));
-
-        // TODO?
-        //    int batchSize = Integer.parseInt(this.properties.getProperty("batchSize"));
-        //    influxDB.enableBatch(batchSize, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public long save(List<Measurement> measurements) {
-//        log.info("********** INFLUX actions **********");
 
         long startTime = System.nanoTime();
 
@@ -51,7 +46,6 @@ public class InfluxPersistence implements PersistenceAdapter {
         }
 
         long writeDuration = System.nanoTime() - startTime;
-//        log.info("Influx batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
         writeTimes.add(writeDuration);
         return writeDuration;
     }
@@ -64,7 +58,6 @@ public class InfluxPersistence implements PersistenceAdapter {
         influxDB.query(query);
 
         long readDuration = System.nanoTime() - readStartTime;
-//        log.info("Influx read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
         readTimes.add(readDuration);
         return readDuration;
     }
