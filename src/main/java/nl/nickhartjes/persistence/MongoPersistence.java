@@ -29,8 +29,9 @@ public class MongoPersistence implements PersistenceAdapter {
     }
 
     @Override
-    public void save(List<Measurement> measurements) {
-        log.info("********** MONGO actions **********");
+    public long save(List<Measurement> measurements) {
+//        log.info("********** MONGO actions **********");
+        long writeDuration = 0;
 
         List<Document> documents = new ArrayList<>();
 
@@ -46,21 +47,23 @@ public class MongoPersistence implements PersistenceAdapter {
 
             this.collection.insertMany(documents);
 
-            long writeDuration = System.nanoTime() - writeStartTime;
-            log.info("Mongo batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
+            writeDuration = System.nanoTime() - writeStartTime;
+//            log.info("Mongo batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
             writeTimes.add(writeDuration);
         }
+        return writeDuration;
     }
 
     @Override
-    public void readAll() {
+    public long readAll() {
         long readStartTime = System.nanoTime();
 
         this.collection.find().iterator();
 
         long readDuration = System.nanoTime() - readStartTime;
-        log.info("Mongo read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
+//        log.info("Mongo read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
         readTimes.add(readDuration);
+        return readDuration;
     }
 
     @Override

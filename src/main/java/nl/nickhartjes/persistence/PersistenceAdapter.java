@@ -6,8 +6,9 @@ import java.util.List;
 
 public interface PersistenceAdapter {
 
-    void save(List<Measurement> measurements);
-    void readAll();
+    long save(List<Measurement> measurements);
+
+    long readAll();
     void close();
     void drop();
     List<Long> getWriteTimes();

@@ -3,6 +3,7 @@ package nl.nickhartjes.component;
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.Measurement;
 import nl.nickhartjes.persistence.Persistence;
+import nl.nickhartjes.statistics.Exporter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,13 +14,15 @@ import java.util.concurrent.ThreadLocalRandom;
 class DatabaseTest {
 
     private final Persistence persistence;
+    private final Exporter exporter;
     private final DatabaseTestConfig config;
 
     private Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
 
-    DatabaseTest(DatabaseTestConfig config, Persistence persistence) {
+    DatabaseTest(DatabaseTestConfig config, Persistence persistence, Exporter exporter) {
         this.config = config;
         this.persistence = persistence;
+        this.exporter = exporter;
     }
 
     void writeAndReadData() {
@@ -39,16 +42,11 @@ class DatabaseTest {
             if ((count % config.getBatchSize()) == 0) {
                 batchCounter++;
 
-                log.info("------------------------------------------------------------");
-                log.info("------- Batch nr " + batchCounter + ", Total data entries: " + count);
-                log.info("------------------------------------------------------------");
-
-                persistence.save(measurements);
-                persistence.readAll();
-
+                persistence.save(measurements, batchCounter, config.getBatchSize(), exporter);
+                persistence.readAll(batchCounter, config.getBatchSize(), exporter);
                 measurements.clear();
 
-                log.info("End of batch nr "+ batchCounter + ", " + config.getBatchSize() + " entries added to databases! \n");
+//                log.info("End of batch nr "+ batchCounter + ", " + config.getBatchSize() + " entries added to databases! \n");
             }
 
             calendar.add(Calendar.SECOND, 1);
@@ -56,7 +54,7 @@ class DatabaseTest {
             upperBoundValue = getMax(randomNum);
         }
 
-        log.info("Total duration: " + (System.nanoTime() - startTime) / 1000000 + "ms \n" );
+        log.info("Total duration: " + (System.nanoTime() - startTime) / 1000000 + "ms \n");
     }
 
     private double getMin(double nr) {

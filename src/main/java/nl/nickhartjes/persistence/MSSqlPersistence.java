@@ -4,11 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.Measurement;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +30,13 @@ public class MSSqlPersistence implements PersistenceAdapter {
     }
 
     @Override
-    public void save(List<Measurement> measurements) {
+    public long save(List<Measurement> measurements) {
 
         String insertStatement = "INSERT INTO dbo." + collection + " (timestamp, value) VALUES (?,?)";
+        long writeDuration = 0;
 
         try (PreparedStatement stmt = connection.prepareStatement(insertStatement)) {
-            log.info("********** MSSQL actions **********");
+//            log.info("********** MSSQL actions **********");
             connection.setAutoCommit(false);
 
             // Insert sample records
@@ -58,29 +55,32 @@ public class MSSqlPersistence implements PersistenceAdapter {
             stmt.executeBatch();
             connection.commit();
 
-            long writeDuration = System.nanoTime() - startTime;
-            log.info("MSSQL batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
+            writeDuration = System.nanoTime() - startTime;
+//            log.info("MSSQL batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
             writeTimes.add(writeDuration);
 
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return writeDuration;
     }
 
     @Override
-    public void readAll() {
+    public long readAll() {
+        long readDuration = 0;
         try (Statement stmt = connection.createStatement()) {
             long readStartTime = System.nanoTime();
 
             stmt.executeQuery("SELECT * FROM Crypto");
 
-            long readDuration = System.nanoTime() - readStartTime;
-            log.info("MSSQL read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
+            readDuration = System.nanoTime() - readStartTime;
+//            log.info("MSSQL read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
 
             readTimes.add(readDuration);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return readDuration;
     }
 
     @Override

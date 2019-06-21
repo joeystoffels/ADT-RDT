@@ -2,11 +2,9 @@ package nl.nickhartjes.component;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.Statistics;
-import nl.nickhartjes.persistence.InfluxPersistence;
-import nl.nickhartjes.persistence.MSSqlPersistence;
-import nl.nickhartjes.persistence.MongoPersistence;
-import nl.nickhartjes.persistence.Persistence;
-import nl.nickhartjes.persistence.PersistenceAdapter;
+import nl.nickhartjes.persistence.*;
+import nl.nickhartjes.statistics.Exporter;
+import nl.nickhartjes.statistics.LogExporter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +16,7 @@ public class Orchestrator {
 
     private Persistence persistence;
     private DatabaseTest databaseTest;
+    private Exporter exporter;
 
     private long nrDataEntries;
     private int batchSize;
@@ -43,15 +42,20 @@ public class Orchestrator {
         persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), collection));
         persistence.add(new MSSqlPersistence(properties.getProperty("mssql.URI"), collection));
 
+        exporter = new Exporter();
+        exporter.add(new LogExporter());
+
         DatabaseTestConfig dataCreatorConfig = new DatabaseTestConfig(nrDataEntries, batchSize, 10, 11);
-        databaseTest = new DatabaseTest(dataCreatorConfig, persistence);
+        databaseTest = new DatabaseTest(dataCreatorConfig, persistence, exporter);
 
         start();
     }
 
     private void start() {
         persistence.drop();
+
         databaseTest.writeAndReadData();
+
         persistence.close();
 
         for (PersistenceAdapter persistenceAdapter : persistence.getPersistenceAdapters()) {
@@ -67,8 +71,5 @@ public class Orchestrator {
             log.info("Total batch write time: " + stats.getTotalBatchWriteTime() + "ms");
             log.info("Total read all time:    " + stats.getTotalReadAllTime() + "ms \n");
         }
-
-
     }
-
 }

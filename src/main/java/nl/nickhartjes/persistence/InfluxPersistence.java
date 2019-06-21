@@ -35,8 +35,8 @@ public class InfluxPersistence implements PersistenceAdapter {
     }
 
     @Override
-    public void save(List<Measurement> measurements) {
-        log.info("********** INFLUX actions **********");
+    public long save(List<Measurement> measurements) {
+//        log.info("********** INFLUX actions **********");
 
         long startTime = System.nanoTime();
 
@@ -51,20 +51,22 @@ public class InfluxPersistence implements PersistenceAdapter {
         }
 
         long writeDuration = System.nanoTime() - startTime;
-        log.info("Influx batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
+//        log.info("Influx batch write: " + writeDuration + "ns, " + writeDuration / 1000000 + "ms, " + writeDuration / 1000000000 + "s");
         writeTimes.add(writeDuration);
+        return writeDuration;
     }
 
     @Override
-    public void readAll() {
+    public long readAll() {
         long readStartTime = System.nanoTime();
 
         Query query = new Query("SELECT * FROM Crypto", collection);
         influxDB.query(query);
 
         long readDuration = System.nanoTime() - readStartTime;
-        log.info("Influx read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
+//        log.info("Influx read all: " + readDuration + "ns, " + readDuration / 1000000 + "ms, " + readDuration / 1000000000 + "s");
         readTimes.add(readDuration);
+        return readDuration;
     }
 
     @Override
