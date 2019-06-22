@@ -9,7 +9,11 @@ public class Converter {
         return nanoseconds / 1000000000;
     }
 
-    public static long nanosecondsToMiliseconds(long nanoseconds) {
+    public static long nanosecondsToMilliseconds(long nanoseconds) {
         return nanoseconds / 1000000;
+    }
+
+    public static long nanosecondsToMilliseconds(double nanoseconds) {
+        return (long) nanoseconds / 1000000;
     }
 }

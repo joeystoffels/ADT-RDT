@@ -2,10 +2,12 @@ package nl.nickhartjes.persistence;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import nl.nickhartjes.exceptions.DatabaseError;
 import nl.nickhartjes.models.Measurement;
 import org.bson.Document;
 
@@ -31,7 +33,6 @@ public class MongoPersistence implements PersistenceAdapter {
     @Override
     public long save(List<Measurement> measurements) {
         long writeDuration = 0;
-
         List<Document> documents = new ArrayList<>();
 
         for (Measurement measurement : measurements) {
@@ -42,24 +43,41 @@ public class MongoPersistence implements PersistenceAdapter {
         }
 
         if (!documents.isEmpty()) {
-            long writeStartTime = System.nanoTime();
+            try {
+                long writeStartTime = System.nanoTime();
 
-            this.collection.insertMany(documents);
+                this.collection.insertMany(documents);
 
-            writeDuration = System.nanoTime() - writeStartTime;
-            writeTimes.add(writeDuration);
+                writeDuration = System.nanoTime() - writeStartTime;
+                writeTimes.add(writeDuration);
+
+            } catch (MongoException e) {
+                log.error("Exception occurred when saving batch to Mongo!" + e.getMessage());
+                throw new DatabaseError(e, this);
+            }
+        } else {
+            log.warn("Mongo: Document to save is empty!");
         }
+
         return writeDuration;
     }
 
     @Override
     public long readAll() {
-        long readStartTime = System.nanoTime();
+        long readDuration = 0;
 
-        this.collection.find().iterator();
+        try {
+            long readStartTime = System.nanoTime();
 
-        long readDuration = System.nanoTime() - readStartTime;
-        readTimes.add(readDuration);
+            this.collection.find().iterator();
+
+            readDuration = System.nanoTime() - readStartTime;
+            readTimes.add(readDuration);
+        } catch (MongoException e) {
+            log.error("Exception occurred when reading all data from Mongo!" + e.getMessage());
+            throw new DatabaseError(e, this);
+        }
+
         return readDuration;
     }
 

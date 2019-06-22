@@ -1,10 +1,10 @@
-package nl.nickhartjes.statistics;
+package nl.nickhartjes.exporter;
 
 import nl.nickhartjes.models.StatisticEntry;
 
 public interface ExportAdapter {
 
-    void addStatistiscsEntry(StatisticEntry statisticEntry);
+    void addStatisticsEntry(StatisticEntry statisticEntry);
 
     void finish();
 }

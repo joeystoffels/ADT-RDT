@@ -1,11 +1,13 @@
 package nl.nickhartjes.persistence;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.nickhartjes.exceptions.DatabaseError;
 import nl.nickhartjes.models.Measurement;
 import nl.nickhartjes.models.StatisticEntry;
-import nl.nickhartjes.statistics.ExportAdapter;
-import nl.nickhartjes.statistics.Exporter;
+import nl.nickhartjes.exporter.ExportAdapter;
+import nl.nickhartjes.exporter.Exporter;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +25,16 @@ public class Persistence {
     }
 
     public void save(List<Measurement> measurementList, int batch, int batchSize, Exporter exporter) {
-        for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
-            StatisticEntry entry = new StatisticEntry(batch, batchSize, persistenceAdapter.getClass().getSimpleName(), "batch write", persistenceAdapter.save(measurementList));
-            for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
-                exportAdapter.addStatistiscsEntry(entry);
+        try {
+            for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
+                StatisticEntry entry = new StatisticEntry(batch, batchSize, persistenceAdapter.getClass().getSimpleName(), "batch write", persistenceAdapter.save(measurementList));
+                for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
+                    exportAdapter.addStatisticsEntry(entry);
+                }
             }
+        } catch (DatabaseError e) {
+            log.warn(e.getAdapter().getClass().getSimpleName() + " has been removed from the test!");
+            persistenceAdapters.remove(e.getAdapter());
         }
     }
 
@@ -44,11 +51,16 @@ public class Persistence {
     }
 
     public void readAll(int batch, int batchSize, Exporter exporter) {
-        for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
-            StatisticEntry entry = new StatisticEntry(batch, batchSize, persistenceAdapter.getClass().getSimpleName(), "read all", persistenceAdapter.readAll());
-            for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
-                exportAdapter.addStatistiscsEntry(entry);
+        try {
+            for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
+                StatisticEntry entry = new StatisticEntry(batch, batchSize, persistenceAdapter.getClass().getSimpleName(), "read all", persistenceAdapter.readAll());
+                for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
+                    exportAdapter.addStatisticsEntry(entry);
+                }
             }
+        } catch (DatabaseError e) {
+            log.warn(e.getAdapter().getClass().getSimpleName() + " has been removed from the test!");
+            persistenceAdapters.remove(e.getAdapter());
         }
     }
 

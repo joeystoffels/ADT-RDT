@@ -1,6 +1,7 @@
 package nl.nickhartjes.models;
 
 import lombok.Data;
+import nl.nickhartjes.component.Converter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,8 @@ public class Statistics {
         this.cumulativeReadTimes = getCumulativeTimes(readAllTimes);
         this.averageBatchWriteTime = cumulativeWriteTimes.get(cumulativeWriteTimes.size()-1) / ((double) nrDataPoints / batchSize);
         this.averageReadTime = cumulativeReadTimes.get(cumulativeReadTimes.size()-1) / ((double) nrDataPoints / batchSize);
-        this.totalBatchWriteTime = cumulativeWriteTimes.get(cumulativeWriteTimes.size() - 1) / 1000000;
-        this.totalReadAllTime = cumulativeReadTimes.get(cumulativeReadTimes.size() - 1) / 1000000;
+        this.totalBatchWriteTime = Converter.nanosecondsToMilliseconds(cumulativeWriteTimes.get(cumulativeWriteTimes.size() - 1));
+        this.totalReadAllTime = Converter.nanosecondsToMilliseconds(cumulativeReadTimes.get(cumulativeReadTimes.size() - 1));
     }
 
     private List<Long> getCumulativeTimes(List<Long> batchWriteTimes) {

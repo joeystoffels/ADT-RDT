@@ -1,11 +1,12 @@
 package nl.nickhartjes.component;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.nickhartjes.models.DatabaseTestConfig;
 import nl.nickhartjes.models.Statistics;
 import nl.nickhartjes.persistence.*;
-import nl.nickhartjes.statistics.ExcelExporter;
-import nl.nickhartjes.statistics.Exporter;
-import nl.nickhartjes.statistics.LogExporter;
+import nl.nickhartjes.exporter.ExcelExporter;
+import nl.nickhartjes.exporter.Exporter;
+import nl.nickhartjes.exporter.LogExporter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +20,8 @@ public class Orchestrator {
     private DatabaseTest databaseTest;
     private Exporter exporter;
 
-    private long nrDataEntries;
-    private int batchSize;
+    private final long nrDataEntries;
+    private final int batchSize;
 
     public Orchestrator() {
         Properties properties = new Properties();
@@ -35,26 +36,28 @@ public class Orchestrator {
 
         this.nrDataEntries = Long.valueOf(properties.getProperty("nrDataEntries"));
         this.batchSize = Integer.valueOf(properties.getProperty("batchSize"));
+        int startValue = Integer.parseInt(properties.getProperty("startValue"));
+        int upperBoundValue = Integer.parseInt(properties.getProperty("upperBoundValue"));
 
         persistence = new Persistence();
         String collection = properties.getProperty("collection");
 
         persistence.add(new MongoPersistence(properties.getProperty("mongo.URI"), properties.getProperty("mongo.database"), collection));
-        persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), collection));
+        persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), collection, batchSize));
         persistence.add(new MSSqlPersistence(properties.getProperty("mssql.URI"), collection));
 
         exporter = new Exporter();
         exporter.add(new LogExporter());
         exporter.add(new ExcelExporter());
 
-        DatabaseTestConfig dataCreatorConfig = new DatabaseTestConfig(nrDataEntries, batchSize, 10, 11);
+        DatabaseTestConfig dataCreatorConfig = new DatabaseTestConfig(nrDataEntries, batchSize, startValue, upperBoundValue);
         databaseTest = new DatabaseTest(dataCreatorConfig, persistence, exporter);
 
         start();
     }
 
     private void start() {
-        persistence.drop();
+//        persistence.drop();
 
         databaseTest.writeAndReadData();
 
@@ -68,8 +71,8 @@ public class Orchestrator {
             Statistics stats = new Statistics(persistenceAdapter.getClass().getSimpleName(), nrDataEntries, batchSize, batchWriteTimes, readAllTimes);
 
             log.info("Persistence Type:       " + stats.getPersistenceType());
-            log.info("Avg batch write time:   " + stats.getAverageBatchWriteTime() / 1000000 + "ms");
-            log.info("Avg read all time:      " + stats.getAverageReadTime() / 1000000 + "ms");
+            log.info("Avg batch write time:   " + Converter.nanosecondsToMilliseconds(stats.getAverageBatchWriteTime()) + "ms");
+            log.info("Avg read all time:      " + Converter.nanosecondsToMilliseconds(stats.getAverageReadTime()) + "ms");
             log.info("Total batch write time: " + stats.getTotalBatchWriteTime() + "ms");
             log.info("Total read all time:    " + stats.getTotalReadAllTime() + "ms \n");
         }

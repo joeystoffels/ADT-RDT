@@ -1,4 +1,4 @@
-package nl.nickhartjes.statistics;
+package nl.nickhartjes.exporter;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.models.StatisticEntry;
@@ -22,13 +22,11 @@ public class ExcelExporter implements ExportAdapter {
 
     public ExcelExporter() {
         workbook = new XSSFWorkbook();
-
-
     }
 
     @Override
-    public void addStatistiscsEntry(StatisticEntry statisticEntry) {
-        Sheet sheet = null;
+    public void addStatisticsEntry(StatisticEntry statisticEntry) {
+        Sheet sheet;
         String sheetName = statisticEntry.getName() + '-' + statisticEntry.getAction();
         if (statisticEntry.getBatch() == 1) {
             sheet = workbook.createSheet(sheetName);
@@ -49,7 +47,7 @@ public class ExcelExporter implements ExportAdapter {
             headerCell.setCellValue("Seconds");
 
             headerCell = header.createCell(3);
-            headerCell.setCellValue("Miliseconds");
+            headerCell.setCellValue("Milliseconds");
 
             headerCell = header.createCell(4);
             headerCell.setCellValue("Nanoseconds");
@@ -62,13 +60,13 @@ public class ExcelExporter implements ExportAdapter {
         cell.setCellValue(statisticEntry.getBatch());
 
         cell = row.createCell(1);
-        cell.setCellValue(statisticEntry.getBatch() * statisticEntry.getBatchSize());
+        cell.setCellValue(statisticEntry.getBatch() * (double) statisticEntry.getBatchSize());
 
         cell = row.createCell(2);
         cell.setCellValue(statisticEntry.getSeconds());
 
         cell = row.createCell(3);
-        cell.setCellValue(statisticEntry.getMiliseconds());
+        cell.setCellValue(statisticEntry.getMilliseconds());
 
         cell = row.createCell(4);
         cell.setCellValue(statisticEntry.getNanoseconds());

@@ -1,4 +1,4 @@
-package nl.nickhartjes.statistics;
+package nl.nickhartjes.exporter;
 
 import java.util.ArrayList;
 import java.util.List;

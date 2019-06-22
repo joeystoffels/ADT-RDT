@@ -2,6 +2,7 @@ package nl.nickhartjes.persistence;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import nl.nickhartjes.exceptions.DatabaseError;
 import nl.nickhartjes.models.Measurement;
 
 import java.sql.*;
@@ -31,16 +32,14 @@ public class MSSqlPersistence implements PersistenceAdapter {
 
     @Override
     public long save(List<Measurement> measurements) {
-
-        String insertStatement = "INSERT INTO dbo." + collection + " (timestamp, value) VALUES (?,?)";
         long writeDuration = 0;
+        String insertStatement = "INSERT INTO dbo." + collection + " (timestamp, value) VALUES (?,?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(insertStatement)) {
             connection.setAutoCommit(false);
 
             // Insert sample records
             for (Measurement measurement : measurements) {
-
                 java.sql.Date date = new java.sql.Date(measurement.getTimestamp().getTime().getTime());
                 stmt.setDate(1, date);
                 stmt.setDouble(2, measurement.getValue());
@@ -48,6 +47,7 @@ public class MSSqlPersistence implements PersistenceAdapter {
                 // Add statement to batch
                 stmt.addBatch();
             }
+
             // writeAndReadData batch
             long startTime = System.nanoTime();
 
@@ -56,26 +56,29 @@ public class MSSqlPersistence implements PersistenceAdapter {
 
             writeDuration = System.nanoTime() - startTime;
             writeTimes.add(writeDuration);
-
         } catch (SQLException e) {
-            log.error(e.getMessage());
+            log.error("Exception occurred when saving batch to MSSQL!" + e.getMessage());
+            throw new DatabaseError(e, this);
         }
+
         return writeDuration;
     }
 
     @Override
     public long readAll() {
         long readDuration = 0;
-        try (Statement stmt = connection.createStatement()) {
+        String readStatement = "SELECT * FROM Crypto";
+
+        try (PreparedStatement stmt = connection.prepareStatement(readStatement)) {
             long readStartTime = System.nanoTime();
 
-            stmt.executeQuery("SELECT * FROM Crypto");
+            stmt.execute();
 
             readDuration = System.nanoTime() - readStartTime;
-
             readTimes.add(readDuration);
         } catch (SQLException e) {
-            log.error(e.getMessage());
+            log.error("Exception occurred when reading all data from MSSQL!" + e.getMessage());
+            throw new DatabaseError(e, this);
         }
         return readDuration;
     }

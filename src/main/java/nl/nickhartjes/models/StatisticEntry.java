@@ -13,7 +13,7 @@ public class StatisticEntry {
     private String name;
     private String action;
     private long nanoseconds;
-    private long miliseconds;
+    private long milliseconds;
     private long seconds;
 
     public StatisticEntry(int batch, int batchSize, String name, String action, long nanoseconds) {
@@ -22,7 +22,7 @@ public class StatisticEntry {
         this.name = name;
         this.action = action;
         this.nanoseconds = nanoseconds;
-        this.miliseconds = Converter.nanosecondsToMiliseconds(nanoseconds);
+        this.milliseconds = Converter.nanosecondsToMilliseconds(nanoseconds);
         this.seconds = Converter.nanosecondsToSeconds(nanoseconds);
     }
 }

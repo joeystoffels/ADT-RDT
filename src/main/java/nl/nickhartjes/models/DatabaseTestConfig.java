@@ -1,11 +1,11 @@
-package nl.nickhartjes.component;
+package nl.nickhartjes.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-class DatabaseTestConfig {
+public class DatabaseTestConfig {
 
     private final long nrDataPoints;
     private final int batchSize;
