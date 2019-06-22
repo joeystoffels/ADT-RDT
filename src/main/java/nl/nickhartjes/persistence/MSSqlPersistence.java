@@ -33,7 +33,7 @@ public class MSSqlPersistence implements PersistenceAdapter {
     @Override
     public long save(List<Measurement> measurements) {
         long writeDuration = 0;
-        String insertStatement = "INSERT INTO dbo." + collection + " (timestamp, value) VALUES (?,?)";
+        String insertStatement = "INSERT INTO " + collection + " (timestamp, value) VALUES (?,?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(insertStatement)) {
             connection.setAutoCommit(false);
@@ -67,12 +67,12 @@ public class MSSqlPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
-        String readStatement = "SELECT * FROM Crypto";
+        String readStatement = "SELECT * FROM " + collection;
 
         try (PreparedStatement stmt = connection.prepareStatement(readStatement)) {
             long readStartTime = System.nanoTime();
 
-            stmt.execute();
+            stmt.executeQuery();
 
             readDuration = System.nanoTime() - readStartTime;
             readTimes.add(readDuration);
@@ -96,7 +96,7 @@ public class MSSqlPersistence implements PersistenceAdapter {
     public void drop() {
         log.info("MSSQL deleting entries...");
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DELETE FROM crypto");
+            stmt.execute("DELETE FROM " + collection);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

@@ -10,7 +10,9 @@ import org.influxdb.InfluxDBException;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -20,13 +22,13 @@ import java.util.concurrent.TimeUnit;
 public class InfluxPersistence implements PersistenceAdapter {
 
     private final InfluxDB influxDB;
-    private final String collection;
+    private final String database;
 
     private List<Long> writeTimes = new ArrayList<>();
     private List<Long> readTimes = new ArrayList<>();
 
-    public InfluxPersistence(String influxUri, String databaseUser, String databasePassword, String collection, int batchSize) {
-        this.collection = collection;
+    public InfluxPersistence(String influxUri, String databaseUser, String databasePassword, String database, int batchSize) {
+        this.database = database;
 
         influxDB = InfluxDBFactory.connect(influxUri, databaseUser, databasePassword);
         influxDB.enableBatch(BatchOptions.DEFAULTS.actions(batchSize).flushDuration(100));
@@ -41,12 +43,12 @@ public class InfluxPersistence implements PersistenceAdapter {
 
             for (Measurement measurement : measurements) {
                 Point point =
-                        Point.measurement(collection)
+                        Point.measurement(database)
                                 .time(measurement.getTimestamp().getTimeInMillis(), TimeUnit.MILLISECONDS)
                                 .addField("value", measurement.getValue())
                                 .build();
 
-                this.influxDB.write("han", "autogen", point);
+                this.influxDB.write(database, "autogen", point);
             }
 
             writeDuration = System.nanoTime() - startTime;
@@ -62,11 +64,11 @@ public class InfluxPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
+        Query query = new Query("SELECT * FROM " + database, database);
 
         try {
             long readStartTime = System.nanoTime();
 
-            Query query = new Query("SELECT * FROM Crypto", collection);
             influxDB.query(query);
 
             readDuration = System.nanoTime() - readStartTime;
@@ -87,7 +89,7 @@ public class InfluxPersistence implements PersistenceAdapter {
     @Override
     public void drop() {
         log.info("Influx deleting entries...");
-        Query query = new Query("DELETE FROM Crypto", collection);
+        Query query = new Query("DELETE FROM " + database, database);
         influxDB.query(query);
     }
 

@@ -41,9 +41,10 @@ public class Orchestrator {
 
         persistence = new Persistence();
         String collection = properties.getProperty("collection");
+        String database = properties.getProperty("database");
 
-        persistence.add(new MongoPersistence(properties.getProperty("mongo.URI"), properties.getProperty("mongo.database"), collection));
-        persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), collection, batchSize));
+        persistence.add(new MongoPersistence(properties.getProperty("mongo.URI"), database, collection));
+        persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), database, batchSize));
         persistence.add(new MSSqlPersistence(properties.getProperty("mssql.URI"), collection));
 
         exporter = new Exporter();
@@ -57,7 +58,7 @@ public class Orchestrator {
     }
 
     private void start() {
-//        persistence.drop();
+        persistence.drop();
 
         databaseTest.writeAndReadData();
 

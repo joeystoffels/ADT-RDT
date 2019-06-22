@@ -49,7 +49,7 @@ class DatabaseTest {
                 measurements.clear();
             }
 
-            calendar.add(Calendar.SECOND, 1);
+            calendar.add(Calendar.MILLISECOND, -1);
             startValue = getMin(randomNum);
             upperBoundValue = getMax(randomNum);
         }
