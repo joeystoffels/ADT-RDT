@@ -1,12 +1,13 @@
 package nl.nickhartjes.component;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.nickhartjes.models.DatabaseTestConfig;
-import nl.nickhartjes.models.Statistics;
-import nl.nickhartjes.persistence.*;
+import nl.nickhartjes.exporter.CsvExporter;
 import nl.nickhartjes.exporter.ExcelExporter;
 import nl.nickhartjes.exporter.Exporter;
 import nl.nickhartjes.exporter.LogExporter;
+import nl.nickhartjes.models.DatabaseTestConfig;
+import nl.nickhartjes.models.Statistics;
+import nl.nickhartjes.persistence.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +51,7 @@ public class Orchestrator {
         exporter = new Exporter();
         exporter.add(new LogExporter());
         exporter.add(new ExcelExporter());
+        exporter.add(new CsvExporter());
 
         DatabaseTestConfig dataCreatorConfig = new DatabaseTestConfig(nrDataEntries, batchSize, startValue, upperBoundValue);
         databaseTest = new DatabaseTest(dataCreatorConfig, persistence, exporter);
