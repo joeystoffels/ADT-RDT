@@ -96,7 +96,7 @@ public class MSSqlPersistence implements PersistenceAdapter {
     public void drop() {
         log.info("MSSQL deleting entries...");
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DELETE FROM " + collection);
+            stmt.execute("TRUNCATE TABLE " + collection);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
