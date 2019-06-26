@@ -60,7 +60,9 @@ class DatabaseTest {
             exportAdapter.finish();
         }
 
-        log.info("Total duration: " + Converter.nanosecondsToMilliseconds(System.nanoTime() - startTime) + "ms \n");
+        long stopTime = System.nanoTime();
+
+        log.info("Total duration: " + Converter.nanosecondsToMilliseconds(stopTime - startTime) + "ms \n");
     }
 
     private double getMin(double nr) {
