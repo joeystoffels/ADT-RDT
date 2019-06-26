@@ -1,0 +1,56 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {appName}
+  namespace: {namespace}
+  labels:
+    app: {appName}
+spec:
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      name: {appName}
+      labels:
+        app: {appName}
+      annotations:
+        chaos.alpha.kubernetes.io/enabled: "true"
+    spec:
+      containers:
+      - name: {appName}
+        image: {image}
+        resources:
+          limits:
+            cpu: 1
+            memory: 2048Mi
+          requests:
+            cpu: 0.500
+            memory: 512Mi
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /appinfo/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /appinfo/health
+            port: 8080
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+        volumeMounts:
+          - name: storage-volume
+            mountPath: /usr/src/myapp/files
+    volumes:
+      - name: storage-volume
+        persistentVolumeClaim:
+          claimName: {appName}

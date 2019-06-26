@@ -1,0 +1,13 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {appName}
+  namespace: {namespace}
+spec:
+  storageClassName: eu-west-1b-gp2
+  dataSource: null
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

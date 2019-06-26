@@ -36,3 +36,5 @@ out/
 files/*.xlsx
 files/*.csv
 !files/template.xlsx
+
+go.txt
