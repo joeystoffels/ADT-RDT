@@ -45,3 +45,7 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+task wrapper1(type: Wrapper) {
+    gradleVersion = '5.1.1'
+}
