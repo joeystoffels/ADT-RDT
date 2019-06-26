@@ -20,12 +20,16 @@ public class MSSqlPersistence implements PersistenceAdapter {
 
     private final String collection;
     private final Connection connection;
+    private final String podName;
+    private final String containerName;
 
     private List<Long> writeTimes = new ArrayList<>();
     private List<Long> readTimes = new ArrayList<>();
 
-    public MSSqlPersistence(String uri, String collection) {
+    public MSSqlPersistence(String uri, String collection, String podName, String containerName) {
         this.collection = collection;
+        this.podName = podName;
+        this.containerName = containerName;
 
         try {
             connection = DriverManager.getConnection(uri);

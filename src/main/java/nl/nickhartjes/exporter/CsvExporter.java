@@ -41,7 +41,7 @@ public class CsvExporter implements ExportAdapter {
             File file = new File(fileLocation);
             CSVWriter writer = new CSVWriter(new FileWriter(file, true), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
             if (statisticEntry.getBatch() == 1) {
-                String[] data = {"Batch nr.", "Batch Total", "Seconds", "Milliseconds", "Nanoseconds", "Start timestamp", "End timestamp"};
+                String[] data = {"Batch nr.", "Batch Total", "Seconds", "Milliseconds", "Nanoseconds", "Start timestamp", "End timestamp", "Mem Usage", "Cpu Total"};
                 writer.writeNext(data);
             }
 
@@ -53,6 +53,8 @@ public class CsvExporter implements ExportAdapter {
                     Long.toString(statisticEntry.getNanoseconds()),
                     Long.toString(statisticEntry.getStartTimestamp()),
                     Long.toString(statisticEntry.getEndTimestamp()),
+                    Long.toString(statisticEntry.getMemUsage()),
+                    Double.toString(statisticEntry.getCpuTotal())
             };
             writer.writeNext(data);
             writer.close();

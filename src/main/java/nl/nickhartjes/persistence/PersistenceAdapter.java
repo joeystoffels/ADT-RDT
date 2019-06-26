@@ -13,5 +13,7 @@ public interface PersistenceAdapter {
     void drop();
     List<Long> getWriteTimes();
     List<Long> getReadTimes();
+    String getPodName();
+    String getContainerName();
 
 }

@@ -46,9 +46,9 @@ public class Orchestrator {
         String collection = properties.getProperty("collection");
         String database = properties.getProperty("database");
 
-        persistence.add(new MongoPersistence(properties.getProperty("mongo.URI"), database, collection));
-        persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), database, batchSize));
-        persistence.add(new MSSqlPersistence(properties.getProperty("mssql.URI"), collection));
+        persistence.add(new MongoPersistence(properties.getProperty("mongo.URI"), database, collection, properties.getProperty("prometheus.pod.mongo"), properties.getProperty("prometheus.container.mongo")));
+        persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), database, batchSize, properties.getProperty("prometheus.pod.influx"), properties.getProperty("prometheus.container.influx")));
+        persistence.add(new MSSqlPersistence(properties.getProperty("mssql.URI"), collection, properties.getProperty("prometheus.pod.mssql"), properties.getProperty("prometheus.container.mssql")));
 
         Exporter exporter = new Exporter();
         exporter.add(new LogExporter());

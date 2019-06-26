@@ -21,12 +21,16 @@ public class InfluxPersistence implements PersistenceAdapter {
 
     private final InfluxDB influxDB;
     private final String database;
+    private final String podName;
+    private final String containerName;
 
     private List<Long> writeTimes = new ArrayList<>();
     private List<Long> readTimes = new ArrayList<>();
 
-    public InfluxPersistence(String influxUri, String databaseUser, String databasePassword, String database, int batchSize) {
+    public InfluxPersistence(String influxUri, String databaseUser, String databasePassword, String database, int batchSize, String podName, String containerName) {
         this.database = database;
+        this.podName = podName;
+        this.containerName = containerName;
 
         influxDB = InfluxDBFactory.connect(influxUri, databaseUser, databasePassword);
         influxDB.enableBatch(BatchOptions.DEFAULTS.actions(batchSize).flushDuration(100));
@@ -62,12 +66,12 @@ public class InfluxPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
-        Query query = new Query("SELECT *, COUNT(*) FROM " + database, database);
+        Query query = new Query("SELECT * FROM " + database, database);
 
         try {
             long readStartTime = System.nanoTime();
 
-            influxDB.query(query);
+            influxDB.query(query).getResults();
 
 //            QueryResult result = influxDB.query(query);
 //            log.info("" + result.getResults());

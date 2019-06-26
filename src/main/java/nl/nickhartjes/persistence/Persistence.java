@@ -1,6 +1,7 @@
 package nl.nickhartjes.persistence;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.nickhartjes.component.PrometheusApi;
 import nl.nickhartjes.exceptions.DatabaseError;
 import nl.nickhartjes.exporter.ExportAdapter;
 import nl.nickhartjes.exporter.Exporter;
@@ -15,8 +16,11 @@ public class Persistence {
 
     private List<PersistenceAdapter> persistenceAdapters;
 
+    private PrometheusApi prometheusAPI;
+
     public Persistence() {
         persistenceAdapters = new ArrayList<>();
+        prometheusAPI = new PrometheusApi();
     }
 
     public void add(PersistenceAdapter persistenceAdapter) {
@@ -30,13 +34,18 @@ public class Persistence {
                 long executionTime = persistenceAdapter.save(measurementList);
                 long endTimestamp = System.nanoTime();
 
+                long memUsage = prometheusAPI.getCurrentMemUsage(persistenceAdapter);
+                double cpuTotal = prometheusAPI.getTotalCpuUsage(persistenceAdapter);
+
                 StatisticEntry entry = new StatisticEntry(batch,
                         batchSize,
                         persistenceAdapter.getClass().getSimpleName(),
                         "batch write",
                         executionTime,
                         startTimestamp,
-                        endTimestamp);
+                        endTimestamp,
+                        memUsage,
+                        cpuTotal);
                 for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
                     exportAdapter.addStatisticsEntry(entry);
                 }
@@ -66,13 +75,18 @@ public class Persistence {
                 long executionTime = persistenceAdapter.readAll();
                 long endTimestamp = System.nanoTime();
 
+                long memUsage = prometheusAPI.getCurrentMemUsage(persistenceAdapter);
+                double cpuTotal = prometheusAPI.getTotalCpuUsage(persistenceAdapter);
+
                 StatisticEntry entry = new StatisticEntry(batch,
                         batchSize,
                         persistenceAdapter.getClass().getSimpleName(),
                         "read all",
                         executionTime,
                         startTimestamp,
-                        endTimestamp);
+                        endTimestamp,
+                        memUsage,
+                        cpuTotal);
                 for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
                     exportAdapter.addStatisticsEntry(entry);
                 }

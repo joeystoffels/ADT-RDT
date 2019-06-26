@@ -20,14 +20,18 @@ public class MongoPersistence implements PersistenceAdapter {
 
     private final MongoClient mongoClient;
     private final MongoCollection<Document> collection;
+    private final String podName;
+    private final String containerName;
 
     private List<Long> writeTimes = new ArrayList<>();
     private List<Long> readTimes = new ArrayList<>();
 
-    public MongoPersistence(String mongoURI, String databaseName, String collectionName) {
+    public MongoPersistence(String mongoURI, String databaseName, String collectionName, String podName, String containerName) {
         mongoClient = new MongoClient(new MongoClientURI(mongoURI));
         MongoDatabase database = mongoClient.getDatabase(databaseName);
         this.collection = database.getCollection(collectionName);
+        this.podName = podName;
+        this.containerName = containerName;
     }
 
     @Override
