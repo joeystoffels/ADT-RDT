@@ -72,7 +72,7 @@ public class MSSqlPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration;
-        String readStatement = "SELECT COUNT(*) FROM " + collection;
+        String readStatement = "SELECT * FROM " + collection;
 
         try (PreparedStatement stmt = connection.prepareStatement(readStatement)) {
             stmt.closeOnCompletion();

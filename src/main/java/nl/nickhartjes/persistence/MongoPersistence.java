@@ -69,6 +69,7 @@ public class MongoPersistence implements PersistenceAdapter {
         try {
             long readStartTime = System.nanoTime();
 
+            this.collection.find().iterator();
             this.collection.countDocuments();
 //            this.collection.find().iterator().forEachRemaining(System.out::println);
 

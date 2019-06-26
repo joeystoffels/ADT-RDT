@@ -26,7 +26,17 @@ public class Persistence {
     public void save(List<Measurement> measurementList, int batch, int batchSize, Exporter exporter) {
         try {
             for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
-                StatisticEntry entry = new StatisticEntry(batch, batchSize, persistenceAdapter.getClass().getSimpleName(), "batch write", persistenceAdapter.save(measurementList));
+                long startTimestamp = System.nanoTime();
+                long executionTime = persistenceAdapter.save(measurementList);
+                long endTimestamp = System.nanoTime();
+
+                StatisticEntry entry = new StatisticEntry(batch,
+                        batchSize,
+                        persistenceAdapter.getClass().getSimpleName(),
+                        "batch write",
+                        executionTime,
+                        startTimestamp,
+                        endTimestamp);
                 for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
                     exportAdapter.addStatisticsEntry(entry);
                 }
@@ -52,7 +62,17 @@ public class Persistence {
     public void readAll(int batch, int batchSize, Exporter exporter) {
         try {
             for (PersistenceAdapter persistenceAdapter : persistenceAdapters) {
-                StatisticEntry entry = new StatisticEntry(batch, batchSize, persistenceAdapter.getClass().getSimpleName(), "read all", persistenceAdapter.readAll());
+                long startTimestamp = System.nanoTime();
+                long executionTime = persistenceAdapter.readAll();
+                long endTimestamp = System.nanoTime();
+
+                StatisticEntry entry = new StatisticEntry(batch,
+                        batchSize,
+                        persistenceAdapter.getClass().getSimpleName(),
+                        "read all",
+                        executionTime,
+                        startTimestamp,
+                        endTimestamp);
                 for (ExportAdapter exportAdapter : exporter.getExportAdapters()) {
                     exportAdapter.addStatisticsEntry(entry);
                 }

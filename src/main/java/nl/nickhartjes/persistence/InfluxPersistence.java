@@ -62,7 +62,7 @@ public class InfluxPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
-        Query query = new Query("SELECT * FROM " + database, database);
+        Query query = new Query("SELECT *, COUNT(*) FROM " + database, database);
 
         try {
             long readStartTime = System.nanoTime();
@@ -71,7 +71,7 @@ public class InfluxPersistence implements PersistenceAdapter {
 
 //            QueryResult result = influxDB.query(query);
 //            log.info("" + result.getResults());
-            
+
             readDuration = System.nanoTime() - readStartTime;
 
             readTimes.add(readDuration);

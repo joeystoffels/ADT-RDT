@@ -15,8 +15,10 @@ public class StatisticEntry {
     private long nanoseconds;
     private long milliseconds;
     private long seconds;
+    private long startTimestamp;
+    private long endTimestamp;
 
-    public StatisticEntry(int batch, int batchSize, String name, String action, long nanoseconds) {
+    public StatisticEntry(int batch, int batchSize, String name, String action, long nanoseconds, long startTimestamp, long endTimestamp) {
         this.batch = batch;
         this.batchSize = batchSize;
         this.name = name;
@@ -24,5 +26,7 @@ public class StatisticEntry {
         this.nanoseconds = nanoseconds;
         this.milliseconds = Converter.nanosecondsToMilliseconds(nanoseconds);
         this.seconds = Converter.nanosecondsToSeconds(nanoseconds);
+        this.startTimestamp = startTimestamp;
+        this.endTimestamp = endTimestamp;
     }
 }
