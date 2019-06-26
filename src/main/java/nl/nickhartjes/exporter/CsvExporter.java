@@ -44,7 +44,6 @@ public class CsvExporter implements ExportAdapter {
             if (statisticEntry.getBatch() == 1) {
                 String[] data = {"Batch nr.", "Batch Total", "Seconds", "Milliseconds", "Nanoseconds"};
                 writer.writeNext(data);
-
             }
 
             String[] data = {
@@ -63,6 +62,6 @@ public class CsvExporter implements ExportAdapter {
 
     @Override
     public void finish() {
-
+        // Empty log start and endtime
     }
 }

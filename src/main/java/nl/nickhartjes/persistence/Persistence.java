@@ -2,12 +2,11 @@ package nl.nickhartjes.persistence;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.exceptions.DatabaseError;
-import nl.nickhartjes.models.Measurement;
-import nl.nickhartjes.models.StatisticEntry;
 import nl.nickhartjes.exporter.ExportAdapter;
 import nl.nickhartjes.exporter.Exporter;
+import nl.nickhartjes.models.Measurement;
+import nl.nickhartjes.models.StatisticEntry;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
