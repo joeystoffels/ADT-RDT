@@ -45,8 +45,8 @@ public class MSSqlPersistence implements PersistenceAdapter {
 
             // Insert sample records
             for (Measurement measurement : measurements) {
-                java.sql.Date date = new java.sql.Date(measurement.getTimestamp().getTime().getTime());
-                stmt.setDate(1, date);
+                java.sql.Timestamp timestamp = new java.sql.Timestamp(measurement.getTimestamp().getTime());
+                stmt.setTimestamp(1, timestamp);
                 stmt.setDouble(2, measurement.getValue());
 
                 // Add statement to batch
@@ -71,8 +71,8 @@ public class MSSqlPersistence implements PersistenceAdapter {
 
     @Override
     public long readAll() {
-        long readDuration = 0;
-        String readStatement = "SELECT COUNT('value') FROM " + collection;
+        long readDuration;
+        String readStatement = "SELECT COUNT(*) FROM " + collection;
 
         try (PreparedStatement stmt = connection.prepareStatement(readStatement)) {
             stmt.closeOnCompletion();

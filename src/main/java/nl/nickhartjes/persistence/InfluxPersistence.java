@@ -9,6 +9,7 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class InfluxPersistence implements PersistenceAdapter {
             for (Measurement measurement : measurements) {
                 Point point =
                         Point.measurement(database)
-                                .time(measurement.getTimestamp().getTimeInMillis(), TimeUnit.MILLISECONDS)
+                                .time(measurement.getTimestamp().getTime(), TimeUnit.MILLISECONDS)
                                 .addField("value", measurement.getValue())
                                 .build();
 
@@ -61,13 +62,16 @@ public class InfluxPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
-        Query query = new Query("SELECT COUNT(value) FROM " + database, database);
+        Query query = new Query("SELECT * FROM " + database, database);
 
         try {
             long readStartTime = System.nanoTime();
 
             influxDB.query(query);
 
+//            QueryResult result = influxDB.query(query);
+//            log.info("" + result.getResults());
+            
             readDuration = System.nanoTime() - readStartTime;
 
             readTimes.add(readDuration);

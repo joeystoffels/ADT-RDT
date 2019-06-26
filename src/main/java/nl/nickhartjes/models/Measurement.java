@@ -3,13 +3,13 @@ package nl.nickhartjes.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
 public class Measurement {
 
-  private Calendar timestamp;
+  private Timestamp timestamp;
   private Double value;
 
 }

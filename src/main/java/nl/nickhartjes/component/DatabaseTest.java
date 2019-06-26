@@ -7,6 +7,7 @@ import nl.nickhartjes.models.DatabaseTestConfig;
 import nl.nickhartjes.models.Measurement;
 import nl.nickhartjes.persistence.Persistence;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -19,7 +20,7 @@ class DatabaseTest {
     private final Exporter exporter;
     private final DatabaseTestConfig config;
 
-    private Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+    private final Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
 
     DatabaseTest(DatabaseTestConfig config, Persistence persistence, Exporter exporter) {
         this.config = config;
@@ -37,19 +38,20 @@ class DatabaseTest {
         int batchCounter = 0;
 
         // Execute
-        for (int count = 0; count < config.getNrDataPoints(); count++) {
+        for (int count = 1; count <= config.getNrDataPoints(); count++) {
             randomNum = getRandomNum(startValue, upperBoundValue);
-            measurements.add(new Measurement(calendar, randomNum));
+            measurements.add(new Measurement(new Timestamp(calendar.getTime().getTime()), randomNum));
 
             if ((count % config.getBatchSize()) == 0) {
                 batchCounter++;
 
                 persistence.save(measurements, batchCounter, config.getBatchSize(), exporter);
                 persistence.readAll(batchCounter, config.getBatchSize(), exporter);
+
                 measurements.clear();
             }
 
-            calendar.add(Calendar.MILLISECOND, -1);
+            calendar.add(Calendar.MILLISECOND, 10);
             startValue = getMin(randomNum);
             upperBoundValue = getMax(randomNum);
         }
