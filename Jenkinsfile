@@ -8,7 +8,7 @@ buildParameterMap['buildClosure'] = buildClosure
 buildParameterMap['jenkinsNodeLabel'] = 'jdk11'
 
 buildParameterMap['deploymentStrategy'] = [
-    "develop":["exe-test",
+    "develop":["exe-test"]
 ]
 
 buildAndDeployGeneric(buildParameterMap)
