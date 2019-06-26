@@ -69,9 +69,11 @@ public class MongoPersistence implements PersistenceAdapter {
         try {
             long readStartTime = System.nanoTime();
 
-            this.collection.find().iterator();
+            this.collection.countDocuments();
 
             readDuration = System.nanoTime() - readStartTime;
+
+            collection.find().iterator().close();
             readTimes.add(readDuration);
         } catch (MongoException e) {
             log.error("Exception occurred when reading all data from Mongo!" + e.getMessage());

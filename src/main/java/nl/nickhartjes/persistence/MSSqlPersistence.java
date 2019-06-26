@@ -5,7 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.exceptions.DatabaseError;
 import nl.nickhartjes.models.Measurement;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,14 +72,17 @@ public class MSSqlPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
-        String readStatement = "SELECT * FROM " + collection;
+        String readStatement = "SELECT COUNT('value') FROM " + collection;
 
         try (PreparedStatement stmt = connection.prepareStatement(readStatement)) {
+            stmt.closeOnCompletion();
             long readStartTime = System.nanoTime();
 
-            stmt.executeQuery();
+            ResultSet result = stmt.executeQuery();
 
             readDuration = System.nanoTime() - readStartTime;
+
+            result.close();
             readTimes.add(readDuration);
         } catch (SQLException e) {
             log.error("Exception occurred when reading all data from MSSQL!" + e.getMessage());

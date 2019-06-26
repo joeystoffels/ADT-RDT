@@ -1,11 +1,11 @@
 package nl.nickhartjes.component;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.nickhartjes.exporter.ExportAdapter;
+import nl.nickhartjes.exporter.Exporter;
 import nl.nickhartjes.models.DatabaseTestConfig;
 import nl.nickhartjes.models.Measurement;
 import nl.nickhartjes.persistence.Persistence;
-import nl.nickhartjes.exporter.ExportAdapter;
-import nl.nickhartjes.exporter.Exporter;
 
 import java.util.ArrayList;
 import java.util.Calendar;

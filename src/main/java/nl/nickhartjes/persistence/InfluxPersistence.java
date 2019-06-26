@@ -6,13 +6,10 @@ import nl.nickhartjes.exceptions.DatabaseError;
 import nl.nickhartjes.models.Measurement;
 import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBException;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
-import org.influxdb.dto.QueryResult;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +50,7 @@ public class InfluxPersistence implements PersistenceAdapter {
 
             writeDuration = System.nanoTime() - startTime;
             writeTimes.add(writeDuration);
-        } catch (InfluxDBException e) {
+        } catch (Exception e) {
             log.error("Exception occurred when saving batch to Influx!" + e.getMessage());
             throw new DatabaseError(e, this);
         }
@@ -64,7 +61,7 @@ public class InfluxPersistence implements PersistenceAdapter {
     @Override
     public long readAll() {
         long readDuration = 0;
-        Query query = new Query("SELECT * FROM " + database, database);
+        Query query = new Query("SELECT COUNT(value) FROM " + database, database);
 
         try {
             long readStartTime = System.nanoTime();
@@ -72,8 +69,9 @@ public class InfluxPersistence implements PersistenceAdapter {
             influxDB.query(query);
 
             readDuration = System.nanoTime() - readStartTime;
+
             readTimes.add(readDuration);
-        } catch (InfluxDBException e) {
+        } catch (Exception e) {
             log.error("Exception occurred when reading all data from Influx!" + e.getMessage());
             throw new DatabaseError(e, this);
         }

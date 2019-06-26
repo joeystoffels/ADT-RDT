@@ -2,12 +2,15 @@ package nl.nickhartjes.component;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.nickhartjes.exporter.CsvExporter;
-import nl.nickhartjes.exporter.ExcelExporter;
 import nl.nickhartjes.exporter.Exporter;
 import nl.nickhartjes.exporter.LogExporter;
 import nl.nickhartjes.models.DatabaseTestConfig;
 import nl.nickhartjes.models.Statistics;
-import nl.nickhartjes.persistence.*;
+import nl.nickhartjes.persistence.InfluxPersistence;
+import nl.nickhartjes.persistence.MSSqlPersistence;
+import nl.nickhartjes.persistence.MongoPersistence;
+import nl.nickhartjes.persistence.Persistence;
+import nl.nickhartjes.persistence.PersistenceAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +22,6 @@ public class Orchestrator {
 
     private Persistence persistence;
     private DatabaseTest databaseTest;
-    private Exporter exporter;
 
     private final long nrDataEntries;
     private final int batchSize;
@@ -48,9 +50,9 @@ public class Orchestrator {
         persistence.add(new InfluxPersistence(properties.getProperty("influxdb.URI"), properties.getProperty("influxdb.username"), properties.getProperty("influxdb.password"), database, batchSize));
         persistence.add(new MSSqlPersistence(properties.getProperty("mssql.URI"), collection));
 
-        exporter = new Exporter();
+        Exporter exporter = new Exporter();
         exporter.add(new LogExporter());
-        exporter.add(new ExcelExporter());
+        //exporter.add(new ExcelExporter());
         exporter.add(new CsvExporter());
 
         DatabaseTestConfig dataCreatorConfig = new DatabaseTestConfig(nrDataEntries, batchSize, startValue, upperBoundValue);

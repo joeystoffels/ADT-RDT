@@ -59,6 +59,7 @@ public class Persistence {
                 }
             }
         } catch (DatabaseError e) {
+            e.getAdapter().close();
             log.warn(e.getAdapter().getClass().getSimpleName() + " has been removed from the test!");
             persistenceAdapters.remove(e.getAdapter());
         }
